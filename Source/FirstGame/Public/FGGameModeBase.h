@@ -11,5 +11,8 @@ UCLASS()
 class FIRSTGAME_API AFGGameModeBase : public AGameModeBase
 {
     GENERATED_BODY()
+
+public:
+	AFGGameModeBase();
 	
 };
