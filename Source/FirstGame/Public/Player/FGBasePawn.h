@@ -7,8 +7,8 @@
 #include "FGBasePawn.generated.h"
 
 class UCameraComponent;
-class UFloatingPawnMovement;
 class USpringArmComponent;
+class UHealthComponent;
 
 USTRUCT(BlueprintType)
 struct FMove 
@@ -33,10 +33,10 @@ class FIRSTGAME_API AFGBasePawn : public APawn
 public:
 	AFGBasePawn();
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USceneComponent* SceneComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -45,21 +45,19 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	USpringArmComponent* SpringArmComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+	UHealthComponent* HealthComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Move Setting")
 	FMove MoveSetting;
 
-protected:
-
-	virtual void BeginPlay() override;
-
-public:	
 	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-private:
+	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void Jump();
+protected:
+
+	virtual void BeginPlay() override;
 };
