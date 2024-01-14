@@ -4,6 +4,9 @@
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/FGBasePawn.h"
+#include "TimerManager.h"
+
+DEFINE_LOG_CATEGORY_STATIC(LogFGPlayerController, All, All)
 
 void AFGPlayerController::BeginPlay() 
 {
@@ -48,7 +51,20 @@ void AFGPlayerController::MoveRight(float Amount)
 
 void AFGPlayerController::Jump() 
 {
-	CurrentPawn->Jump();
+	if (StartJump < CountJump) 
+	{
+		CurrentPawn->Jump();
+		StartJump++;
+		if (StartJump >= CountJump) 
+		{
+			GetWorldTimerManager().SetTimer(TimerHandleJump, this, &AFGPlayerController::ResetJump, TimerRate, false);
+		}
+	}
+}
+
+void AFGPlayerController::ResetJump() 
+{
+	StartJump = 0;
 }
 
 void AFGPlayerController::AddControllerPitchInput(float Amount) 

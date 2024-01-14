@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FIRSTGAME_API UHealthComponent : public UActorComponent
 {

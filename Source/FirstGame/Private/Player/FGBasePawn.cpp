@@ -2,6 +2,7 @@
 
 #include "Player/FGBasePawn.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "Components/HealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -19,6 +20,12 @@ AFGBasePawn::AFGBasePawn()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(GetRootComponent());
 	StaticMesh->SetSimulatePhysics(true);
+
+	CollisionComponent = CreateDefaultSubobject <USphereComponent>("SphereComponent");
+	CollisionComponent->InitSphereRadius(45.0f);
+	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	CollisionComponent->SetupAttachment(StaticMesh);
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComponent->SetupAttachment(StaticMesh);

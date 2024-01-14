@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
+class USphereComponent;
 
 USTRUCT(BlueprintType)
 struct FMove 
@@ -40,6 +41,9 @@ public:
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
+	USphereComponent* CollisionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -57,7 +61,7 @@ public:
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void Jump();
-protected:
 
+protected:
 	virtual void BeginPlay() override;
 };
