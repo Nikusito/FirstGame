@@ -2,10 +2,11 @@
 
 #include "Player/FGBasePawn.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
 #include "Components/HealthComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Dev/FGDevActor.h"
+#include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBasePawn, All, All)
 
@@ -21,12 +22,6 @@ AFGBasePawn::AFGBasePawn()
 	StaticMesh->SetupAttachment(GetRootComponent());
 	StaticMesh->SetSimulatePhysics(true);
 
-	CollisionComponent = CreateDefaultSubobject <USphereComponent>("SphereComponent");
-	CollisionComponent->InitSphereRadius(45.0f);
-	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	CollisionComponent->SetupAttachment(StaticMesh);
-
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComponent->SetupAttachment(StaticMesh);
 	SpringArmComponent->bUsePawnControlRotation = true;
@@ -40,7 +35,45 @@ AFGBasePawn::AFGBasePawn()
 void AFGBasePawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	check(HealthComponent);
+
+	SetSettingsPawn();
+	SetColor(SettingsPawn.TypeColorPawn);
+
+	StaticMesh->OnComponentHit.AddDynamic(this, &AFGBasePawn::Hit);
+}
+
+void AFGBasePawn::Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (const auto DevActor = Cast<AFGDevActor>(OtherActor)) 
+	{
+		UE_LOG(LogBasePawn, Warning, TEXT("Overlap: %s"), *DevActor->GetName());
+		if (DevActor->GetColor() == SettingsPawn.TypeColorPawn) return;
+
+		SetColor(DevActor->GetColor());
+		GetWorldTimerManager().SetTimer(TimerHandle, this, &AFGBasePawn::OnTimerClearMaterial, Setting.TimerRate, false);
+	}
+}
+
+void AFGBasePawn::SetColor(const FLinearColor& SetColor) 
+{
+	UMaterialInstanceDynamic* DynMaterial = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
+	if (DynMaterial)
+	{
+		DynMaterial->SetVectorParameterValue("Color", SetColor);
+	}
+}
+
+void AFGBasePawn::SetSettingsPawn()
+{
+	SettingsPawn = HealthComponent->GetSettingsPawn();
+}
+
+void AFGBasePawn::OnTimerClearMaterial()
+{
+	UE_LOG(LogBasePawn, Warning, TEXT("Clear Material"));
+	SetColor(SettingsPawn.TypeColorPawn = HealthComponent->GetColorPawn());
 }
 
 void AFGBasePawn::Tick(float DeltaTime)
@@ -52,24 +85,19 @@ void AFGBasePawn::Tick(float DeltaTime)
 void AFGBasePawn::MoveForward(float Amount) 
 {
 	if (Amount == 0.0f)return;
-	MoveSetting.VectorForce = GetActorForwardVector() * MoveSetting.MovementForce * Amount;
-	StaticMesh->AddForce(MoveSetting.VectorForce);
+	Setting.VectorForce = GetActorForwardVector() * Setting.MovementForce * Amount;
+	StaticMesh->AddForce(Setting.VectorForce);
 }
 
 void AFGBasePawn::MoveRight(float Amount) 
 {
 	if (Amount == 0.0f)return;
-	MoveSetting.VectorForce = GetActorRightVector() * MoveSetting.MovementForce * Amount;
-	StaticMesh->AddForce(MoveSetting.VectorForce);
+	Setting.VectorForce = GetActorRightVector() * Setting.MovementForce * Amount;
+	StaticMesh->AddForce(Setting.VectorForce);
 }
 
 void AFGBasePawn::Jump() 
 {
-	MoveSetting.VectorForce = GetActorUpVector() * MoveSetting.JumpImpuls;
-	StaticMesh->AddImpulse(MoveSetting.VectorForce);
+	Setting.VectorForce = GetActorUpVector() * Setting.JumpImpuls;
+	StaticMesh->AddImpulse(Setting.VectorForce);
 }
-
-/*void AFGBasePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}*/

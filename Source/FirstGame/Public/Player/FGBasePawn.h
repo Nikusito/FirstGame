@@ -4,27 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "FGCoreTypes.h"
 #include "FGBasePawn.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
 class UHealthComponent;
-class USphereComponent;
-
-USTRUCT(BlueprintType)
-struct FMove 
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	FVector VectorForce = FVector::ZeroVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float MovementForce = 10000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
-	float JumpImpuls = 10000.0f;
-};
 
 UCLASS()
 class FIRSTGAME_API AFGBasePawn : public APawn
@@ -41,9 +26,6 @@ public:
 	UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
-	USphereComponent* CollisionComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Component")
@@ -53,15 +35,30 @@ public:
 	UHealthComponent* HealthComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Move Setting")
-	FMove MoveSetting;
+	FMove Setting;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default Setting")
+	FSettingPawn SettingsPawn;
 
 	virtual void Tick(float DeltaTime) override;
-	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void Jump();
 
+	FLinearColor GetColor() const { return SettingsPawn.TypeColorPawn; }
+
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	FTimerHandle TimerHandle;
+
+	UFUNCTION()
+	void Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void SetSettingsPawn();
+	void SetColor(const FLinearColor& SetColor);
+
+	void OnTimerClearMaterial(); //We'll have to delete it later
 };
