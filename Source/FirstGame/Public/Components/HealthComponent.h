@@ -15,17 +15,20 @@ class FIRSTGAME_API UHealthComponent : public UActorComponent
 public:	
 	UHealthComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colors Pawn")
-	FTypeColor TypeColorsPawn;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
 	FSettingPawn SettingPawn;
 
 	FSettingPawn GetSettingsPawn() const { return SettingPawn; }
 	FLinearColor GetColorPawn() const { return SettingPawn.TypeColorPawn; }
+	FTypeColor GetColorParam() const { return TypeColorsPawn; }
+
+	FLinearColor CheckColorPawn(const ETypePawn& PawnType);
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colors Pawn")
+	FTypeColor TypeColorsPawn;
+
 	virtual void BeginPlay() override;	
 
-	void SetSettingsPawn();
+	void SetStartSettingsPawn();
 };

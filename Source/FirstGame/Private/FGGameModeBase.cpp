@@ -2,10 +2,10 @@
 
 #include "FGGameModeBase.h"
 #include "Player/FGPlayerController.h"
-#include "Player/FGBasePawn.h"
+#include "Player/FGBaseCharacter.h"
 
 AFGGameModeBase::AFGGameModeBase() 
 {
-	DefaultPawnClass = AFGBasePawn::StaticClass();
+	DefaultPawnClass = AFGBaseCharacter::StaticClass();
 	PlayerControllerClass = AFGPlayerController::StaticClass();
 }

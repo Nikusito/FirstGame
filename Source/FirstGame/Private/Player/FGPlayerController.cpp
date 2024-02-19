@@ -3,8 +3,7 @@
 #include "Player/FGPlayerController.h"
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Player/FGBasePawn.h"
-#include "TimerManager.h"
+#include "Player/FGPlayerCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGPlayerController, All, All)
 
@@ -30,10 +29,10 @@ void AFGPlayerController::GetPawn()
 {
 	if (!GetWorld()) return;
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFGBasePawn::StaticClass(), Pawns);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFGPlayerCharacter::StaticClass(), Pawns);
 	if (Pawns.Num() < 1) return;
 
-	CurrentPawn = Cast<AFGBasePawn>(Pawns[CurrentPawnIndex]);
+	CurrentPawn = Cast<AFGPlayerCharacter>(Pawns[CurrentPawnIndex]);
 	if (!CurrentPawn) return;
 
 	Possess(CurrentPawn);
@@ -49,24 +48,6 @@ void AFGPlayerController::MoveRight(float Amount)
 	CurrentPawn->MoveRight(Amount);
 }
 
-void AFGPlayerController::Jump() 
-{
-	if (StartJump < CountJump) 
-	{
-		CurrentPawn->Jump();
-		StartJump++;
-		if (StartJump >= CountJump) 
-		{
-			GetWorldTimerManager().SetTimer(TimerHandleJump, this, &AFGPlayerController::ResetJump, TimerRate, false);
-		}
-	}
-}
-
-void AFGPlayerController::ResetJump() 
-{
-	StartJump = 0;
-}
-
 void AFGPlayerController::AddControllerPitchInput(float Amount) 
 {
 	CurrentPawn->AddControllerPitchInput(Amount);
@@ -75,4 +56,9 @@ void AFGPlayerController::AddControllerPitchInput(float Amount)
 void AFGPlayerController::AddControllerYawInput(float Amount) 
 {
 	CurrentPawn->AddControllerYawInput(Amount);
+}
+
+void AFGPlayerController::Jump() 
+{
+	CurrentPawn->Jump();
 }
