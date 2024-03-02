@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Player/FGBaseCharacter.h"
+#include "FGCoreTypes.h"
 #include "FGAICharacter.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, bool, ETypePawn);
 
 class UBehaviorTree;
 
@@ -19,21 +22,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	UBehaviorTree* BehaviorTreeAsset;
 
+	FOnHealthChanged OnHealthChanged;
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	FTimerHandle TimerHandle;
 
-	/*UFUNCTION()
-	void Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);*/
-
 	UFUNCTION()
-	void OverlapActor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	void CheckPawn(AFGBaseCharacter* Pawn);
 	void Healing(AFGBaseCharacter* OtherPawn);
 	void Infaction();
-
-	void OnTimerClearMaterial(); //We'll have to delete it later
 };

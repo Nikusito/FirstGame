@@ -24,7 +24,6 @@ void UHealthComponent::SetStartSettingsPawn()
 	auto Pawn = GetOwner();
 	if (!Cast<AFGBaseCharacter>(Pawn)) return;
 	
-	
 	if (const auto Controller = Pawn->GetInstigatorController<AFGPlayerController>()) 
 	{
 		SettingPawn.HealthType = false;

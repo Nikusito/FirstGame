@@ -3,7 +3,7 @@
 #include "AI/FGAICharacter.h"
 #include "AI/FGAIController.h"
 #include "Components/HealthComponent.h"
-#include "TimerManager.h"
+#include "Components/CapsuleComponent.h"
 #include "Player/FGBaseCharacter.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGAICharacter, All, All)
@@ -12,17 +12,17 @@ AFGAICharacter::AFGAICharacter()
 {
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AFGAIController::StaticClass();
+
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AFGAICharacter::Hit);
 }
 
 void AFGAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//CollisionBox->OnComponentHit.AddDynamic(this, &AFGAIPawn::Hit);
-	//CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AFGAIPawn::OverlapActor);
 }
 
-void AFGAICharacter::OverlapActor(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AFGAICharacter::Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!GetWorld()) return;
 
@@ -32,25 +32,10 @@ void AFGAICharacter::OverlapActor(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		if (GetSettingPawn().HealthType == OverlapActor->GetSettingPawn().HealthType) return;
 
-		//UE_LOG(LogFGAICharacter, Warning, TEXT("Overlap: %s"), *OverlapActor->GetName());
+		UE_LOG(LogFGAICharacter, Warning, TEXT("Overlap: %s"), *OverlapActor->GetName());
 		CheckPawn(OverlapActor);
 	}
 }
-
-//void AFGAICharacter::Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-//{
-//	if (!GetWorld()) return;
-//
-//	const auto OverlapActor = Cast<AFGBasePawn>(OtherActor);
-//
-//	if (OverlapActor)
-//	{
-//		if (GetSettingPawn().HealthType == OverlapActor->GetSettingPawn().HealthType) return;
-//
-//		UE_LOG(LogFGAICharacter, Warning, TEXT("Overlap: %s"), *OverlapActor->GetName());
-//		CheckPawn(OverlapActor);
-//	}
-//}
 
 void AFGAICharacter::CheckPawn(AFGBaseCharacter* Pawn)
 {
@@ -86,7 +71,6 @@ void AFGAICharacter::CheckPawn(AFGBaseCharacter* Pawn)
 	{
 		Infaction();
 	}
-	//GetWorldTimerManager().SetTimer(TimerHandle, this, &AFGAIPawn::OnTimerClearMaterial, Setting.TimerRate, false);
 }
 
 void AFGAICharacter::Healing(AFGBaseCharacter* OtherPawn)
@@ -95,17 +79,12 @@ void AFGAICharacter::Healing(AFGBaseCharacter* OtherPawn)
 
 	OtherPawn->HealthComponent->SettingPawn.HealthType = true;
 	OtherPawn->SetColor(OtherPawn->HealthComponent->CheckColorPawn(OtherPawn->GetSettingPawn().TypePawn));
+	OnHealthChanged.Broadcast(OtherPawn->HealthComponent->SettingPawn.HealthType, OtherPawn->HealthComponent->SettingPawn.TypePawn);
 }
 
 void AFGAICharacter::Infaction()
 {
 	HealthComponent->SettingPawn.HealthType = false;
 	SetColor(HealthComponent->GetColorParam().Sick);
-}
-
-void AFGAICharacter::OnTimerClearMaterial()
-{
-	UE_LOG(LogFGAICharacter, Warning, TEXT("Clear Material"));
-	HealthComponent->SettingPawn.HealthType = true;
-	SetColor(HealthComponent->CheckColorPawn(GetSettingPawn().TypePawn));
+	OnHealthChanged.Broadcast(HealthComponent->SettingPawn.HealthType, HealthComponent->SettingPawn.TypePawn);
 }

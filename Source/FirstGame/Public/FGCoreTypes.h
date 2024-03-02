@@ -44,3 +44,22 @@ struct FSettingPawn
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	bool HealthType = false;
 };
+
+//UI
+USTRUCT(BlueprintType)
+struct FCountTypePawn
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	int32 CountSick = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	int32 CountDoctor = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	int32 CountAssistent = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	int32 CountWorker = 0;
+};
