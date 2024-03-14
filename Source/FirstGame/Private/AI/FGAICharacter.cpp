@@ -5,6 +5,8 @@
 #include "Components/HealthComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Player/FGBaseCharacter.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGAICharacter, All, All)
 
@@ -80,11 +82,27 @@ void AFGAICharacter::Healing(AFGBaseCharacter* OtherPawn)
 	OtherPawn->HealthComponent->SettingPawn.HealthType = true;
 	OtherPawn->SetColor(OtherPawn->HealthComponent->CheckColorPawn(OtherPawn->GetSettingPawn().TypePawn));
 	OnHealthChanged.Broadcast(OtherPawn->HealthComponent->SettingPawn.HealthType, OtherPawn->HealthComponent->SettingPawn.TypePawn);
+	SpawnNiagara(*OtherPawn, true);
 }
 
 void AFGAICharacter::Infaction()
 {
+	if (!HealthComponent->SettingPawn.HealthType) return;
+
 	HealthComponent->SettingPawn.HealthType = false;
 	SetColor(HealthComponent->GetColorParam().Sick);
 	OnHealthChanged.Broadcast(HealthComponent->SettingPawn.HealthType, HealthComponent->SettingPawn.TypePawn);
+	SpawnNiagara(*this, false);
+}
+
+UNiagaraComponent* AFGAICharacter::SpawnNiagara(const AFGBaseCharacter& SlimeMesh, const bool IsHelling)
+{
+	auto Effect = DefaultEffect;
+
+	if (NiagaraEffects.Contains(IsHelling)) 
+	{
+		Effect = NiagaraEffects[IsHelling];
+	}
+
+	return UNiagaraFunctionLibrary::SpawnSystemAttached(Effect, SlimeMesh.GetMesh(), NiagaraSocketName, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true);
 }

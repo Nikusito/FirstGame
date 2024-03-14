@@ -10,6 +10,8 @@
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, bool, ETypePawn);
 
 class UBehaviorTree;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 UCLASS()
 class FIRSTGAME_API AFGAICharacter : public AFGBaseCharacter
@@ -25,7 +27,18 @@ public:
 	FOnHealthChanged OnHealthChanged;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Slime")
+	FName NiagaraSocketName = "NiagaraSocket";
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	UNiagaraSystem* DefaultEffect = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
+	TMap<bool, UNiagaraSystem*> NiagaraEffects;
+
 	virtual void BeginPlay() override;
+
+	UNiagaraComponent* SpawnNiagara(const AFGBaseCharacter& SlimeMesh, const bool IsHelling);
 
 private:
 	FTimerHandle TimerHandle;
