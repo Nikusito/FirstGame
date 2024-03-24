@@ -34,7 +34,7 @@ void AFGAICharacter::Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, 
 	{
 		if (GetSettingPawn().HealthType == OverlapActor->GetSettingPawn().HealthType) return;
 
-		UE_LOG(LogFGAICharacter, Warning, TEXT("Overlap: %s"), *OverlapActor->GetName());
+		UE_LOG(LogFGAICharacter, Display, TEXT("Overlap: %s"), *OverlapActor->GetName());
 		CheckPawn(OverlapActor);
 	}
 }
@@ -79,19 +79,19 @@ void AFGAICharacter::Healing(AFGBaseCharacter* OtherPawn)
 {
 	if (OtherPawn->GetSettingPawn().TypePawn == ETypePawn::MainPawn) return;
 
-	OtherPawn->HealthComponent->SettingPawn.HealthType = true;
+	OtherPawn->HealthComponent->SetSettingsPawn(true);
 	OtherPawn->SetColor(OtherPawn->HealthComponent->CheckColorPawn(OtherPawn->GetSettingPawn().TypePawn));
-	OnHealthChanged.Broadcast(OtherPawn->HealthComponent->SettingPawn.HealthType, OtherPawn->HealthComponent->SettingPawn.TypePawn);
+	OnHealthChanged.Broadcast(OtherPawn->HealthComponent->GetSettingsPawn().HealthType, OtherPawn->HealthComponent->GetSettingsPawn().TypePawn);
 	SpawnNiagara(*OtherPawn, true);
 }
 
 void AFGAICharacter::Infaction()
 {
-	if (!HealthComponent->SettingPawn.HealthType) return;
+	if (!HealthComponent->GetSettingsPawn().HealthType) return;
 
-	HealthComponent->SettingPawn.HealthType = false;
+	HealthComponent->SetSettingsPawn(false);
 	SetColor(HealthComponent->GetColorParam().Sick);
-	OnHealthChanged.Broadcast(HealthComponent->SettingPawn.HealthType, HealthComponent->SettingPawn.TypePawn);
+	OnHealthChanged.Broadcast(HealthComponent->GetSettingsPawn().HealthType, HealthComponent->GetSettingsPawn().TypePawn);
 	SpawnNiagara(*this, false);
 }
 

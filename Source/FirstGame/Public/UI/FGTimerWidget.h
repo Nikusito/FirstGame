@@ -4,17 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "FGCoreTypes.h"
-#include "FGPlayerWidget.generated.h"
+#include "FGTimerWidget.generated.h"
 
 class AFGGameModeBase;
 
 UCLASS()
-class FIRSTGAME_API UFGPlayerWidget : public UUserWidget
+class FIRSTGAME_API UFGTimerWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
+	int32 GetSecondsRemaining() const;
+
+private:
 	AFGGameModeBase* GetFGGameMode() const;
 };

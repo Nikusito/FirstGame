@@ -7,8 +7,6 @@
 #include "FGCoreTypes.h"
 #include "FGAICharacter.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, bool, ETypePawn);
-
 class UBehaviorTree;
 class UNiagaraSystem;
 class UNiagaraComponent;

@@ -2,6 +2,8 @@
 #include "FGCoreTypes.generated.h"
 
 //Pawn
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, const bool&, const ETypePawn&);
+
 UENUM(BlueprintType)
 enum class ETypePawn : uint8
 {
@@ -45,21 +47,39 @@ struct FSettingPawn
 	bool HealthType = false;
 };
 
-//UI
+//Game Data
 USTRUCT(BlueprintType)
 struct FCountTypePawn
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
-	int32 CountSick = 0;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "CountTypePawn")
+	int32 CountSick = 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "CountTypePawn")
 	int32 CountDoctor = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "CountTypePawn")
 	int32 CountAssistent = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CountTypePawn")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "CountTypePawn")
 	int32 CountWorker = 0;
+};
+
+//Game Data: GameMode
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangedTypePawn, const FCountTypePawn&, CountSlime);
+
+USTRUCT(BlueprintType)
+struct FGameData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+	FCountTypePawn CountTypePawn;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "1", ClampMax = "10"))
+	int32 PlayersNum = 2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", meta = (ClampMin = "1", ClampMax = "360"))
+	int32 TimeGame = 10; //in seconds
 };

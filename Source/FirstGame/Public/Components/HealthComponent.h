@@ -15,16 +15,19 @@ class FIRSTGAME_API UHealthComponent : public UActorComponent
 public:	
 	UHealthComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
-	FSettingPawn SettingPawn;
-
 	FSettingPawn GetSettingsPawn() const { return SettingPawn; }
 	FLinearColor GetColorPawn() const { return SettingPawn.TypeColorPawn; }
 	FTypeColor GetColorParam() const { return TypeColorsPawn; }
 
+	void SetSettingsPawn(bool NewHealthPawn) { SettingPawn.HealthType = NewHealthPawn; }
+
 	FLinearColor CheckColorPawn(const ETypePawn& PawnType);
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
+	FSettingPawn SettingPawn;
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colors Pawn")
 	FTypeColor TypeColorsPawn;
 
