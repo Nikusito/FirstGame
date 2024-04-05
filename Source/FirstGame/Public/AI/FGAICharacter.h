@@ -44,6 +44,9 @@ private:
 	UFUNCTION()
 	void Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnTimerReHealing(const ETypePawn& ReHealingPawn);
+
 	void CheckPawn(AFGBaseCharacter* Pawn);
 	void Healing(AFGBaseCharacter* OtherPawn);
 	void Infaction();

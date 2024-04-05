@@ -1,6 +1,7 @@
 // First Game
 
 #include "Components/HealthComponent.h"
+#include "FGGameModeBase.h"
 #include "Player/FGBaseCharacter.h"
 #include "Player/FGPlayerController.h"
 #include "FGCoreTypes.h"
@@ -32,12 +33,7 @@ void UHealthComponent::SetStartSettingsPawn()
 	}
 	else 
 	{
-		SettingPawn.HealthType = true;
-		SettingPawn.TypePawn = FMath::RandBool() ? ETypePawn::Doctor : FMath::RandBool() ? ETypePawn::Assistant : ETypePawn::Worker;
-		SettingPawn.TypeColorPawn = CheckColorPawn(SettingPawn.TypePawn);
-
-		/*FString TypePawn = FString(ETypePawn::Doctor == SettingPawn.TypePawn ? "Doctor" : ETypePawn::Assistant == SettingPawn.TypePawn ? "Assistant" : "Worker");
-		UE_LOG(LogHealthComponent, Warning, TEXT("Not Player Pawn: %s"), *TypePawn);*/
+		SetBotsType();
 	}
 }
 
@@ -65,4 +61,37 @@ FLinearColor UHealthComponent::CheckColorPawn(const ETypePawn& PawnType)
 	}
 
 	return SettingPawn.TypeColorPawn;
+}
+
+void UHealthComponent::SetBotsType() 
+{
+	if (!GetWorld()) return;
+
+	const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (!GameMode) return;
+
+	if(GameMode->CountType.CountDoctor != 0)
+	{
+		SettingPawn.HealthType = true;
+		SettingPawn.TypePawn = ETypePawn::Doctor;
+		SettingPawn.TypeColorPawn = CheckColorPawn(SettingPawn.TypePawn);
+		GameMode->CountType.CountDoctor--;
+	}
+	else 
+	{
+		if (GameMode->CountType.CountAssistent != 0) 
+		{
+			SettingPawn.HealthType = true;
+			SettingPawn.TypePawn = ETypePawn::Assistant;
+			SettingPawn.TypeColorPawn = CheckColorPawn(SettingPawn.TypePawn);
+			GameMode->CountType.CountAssistent--;
+		}
+		else 
+		{
+			SettingPawn.HealthType = true;
+			SettingPawn.TypePawn = ETypePawn::Worker;
+			SettingPawn.TypeColorPawn = CheckColorPawn(SettingPawn.TypePawn);
+			GameMode->CountType.CountWorker--;
+		}
+	}
 }

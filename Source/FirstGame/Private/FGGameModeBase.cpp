@@ -7,6 +7,8 @@
 #include "AI/FGAICharacter.h"
 #include "UI/FGGameHUD.h"
 #include "AIController.h"
+#include "EngineUtils.h"
+#include "FGGameInstance.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGGameModeBase, All, All)
 
@@ -17,10 +19,30 @@ AFGGameModeBase::AFGGameModeBase()
 	HUDClass = AFGGameHUD::StaticClass();
 }
 
+void AFGGameModeBase::SetLevelSetting() 
+{
+	if (!GetWorld()) return;
+
+	const auto GameInstance = GetWorld()->GetGameInstance<UFGGameInstance>();
+	if (!GameInstance) return;
+
+	if (GameData.LevelsSetting.Contains(GameInstance->DifficultyLevel))
+	{
+		LevelSetting = GameData.LevelsSetting[GameInstance->DifficultyLevel];
+		CountType = LevelSetting.CountTypePawn;
+		TimeCountDown = LevelSetting.TimeGame;
+		TimeReHealing = LevelSetting.TimeReHealing;
+	}
+}
+
 //Spawn Pawn
 void AFGGameModeBase::StartPlay()
 {
 	Super::StartPlay();
+
+	SetLevelSetting();
+
+	checkf((CountType.CountSick + CountType.CountDoctor + CountType.CountAssistent + CountType.CountWorker) == GameData.PlayersNum, TEXT("The number of players must equal the sum of slime types"));
 
 	SpawnBots();
 	StartGame();
@@ -37,11 +59,11 @@ void AFGGameModeBase::SpawnBots()
 
 		const auto FGAIController = GetWorld()->SpawnActor<AAIController>(AIControllerClass, SpawnInfo);
 		RestartPlayer(FGAIController);
-		SetStartCountPawn(FGAIController);
+		//SetStartCountPawn(FGAIController);
 		IsAIPawn(FGAIController);
 	}
 
-	OnChangedTypePawn.Broadcast(GameData.CountTypePawn);
+	OnChangedTypePawn.Broadcast(LevelSetting.CountTypePawn);
 }
 
 UClass* AFGGameModeBase::GetDefaultPawnClassForController_Implementation(AController* InController) 
@@ -64,16 +86,49 @@ void AFGGameModeBase::IsAIPawn(AAIController* InConroller)
 //Game timer
 void AFGGameModeBase::StartGame()
 {
-	TimeCountDown = GameData.TimeGame;
 	GetWorldTimerManager().SetTimer(GameTimeHandle, this, &AFGGameModeBase::GameTimerUpdate, 1.0f, true);
+	SetMatchState(EFGMatchState::InProgress);
 }
 
 void AFGGameModeBase::GameTimerUpdate()
 {
-	if (--TimeCountDown == 0) 
+	TimeCountDown = FMath::Clamp(--TimeCountDown, 0, LevelSetting.TimeGame);
+	CheckTimeReHeling();
+
+	if (CheckTimerCount() || CheckSickPawn())
 	{
-		GetWorldTimerManager().ClearTimer(GameTimeHandle);
-		UE_LOG(LogFGGameModeBase, Warning, TEXT("====Game Over====="));
+		GameOver();
+	}
+}
+
+bool AFGGameModeBase::CheckTimerCount() const
+{
+	if (TimeCountDown == 0)
+	{
+		return true; 
+	}
+	else return false;
+}
+
+void AFGGameModeBase::CheckTimeReHeling()
+{
+	if (TimeCountDown <= 20 && !LevelSetting.ReHealing)
+	{
+		GetWorldTimerManager().SetTimer(ReHealingTimer, this, &AFGGameModeBase::ReHealingUpdate, 1.0f, false);
+		LevelSetting.ReHealing = true;
+		IsReHealing = true;
+		OnReHealingPawn.Broadcast(LevelSetting.ReHealingPawn);
+	}
+}
+
+void AFGGameModeBase::ReHealingUpdate() 
+{
+	LevelSetting.TimeReHealing = FMath::Clamp(--TimeReHealing, 0, LevelSetting.TimeReHealing);
+	if (TimeReHealing == 0)
+	{
+		LevelSetting.ReHealing = false;
+		TimeReHealing = LevelSetting.TimeReHealing;
+		GetWorldTimerManager().ClearTimer(ReHealingTimer);
 	}
 }
 
@@ -83,13 +138,45 @@ void AFGGameModeBase::HealingOrInfaction(const bool& Health, const ETypePawn& Ty
 	if (Health) 
 	{
 		HealingPawn(TypePawn);
+		SetPenalTime();
 	}
 	else 
 	{
 		InfactionPawn(TypePawn);
+		CheckSickPawn();
 	}
 
-	OnChangedTypePawn.Broadcast(GameData.CountTypePawn);
+	OnChangedTypePawn.Broadcast(LevelSetting.CountTypePawn);
+}
+
+void AFGGameModeBase::SetPenalTime()
+{
+	if (IsReHealing) 
+	{
+		IsReHealing = false;
+		return;
+	}
+	else 
+	{
+		if (TimeCountDown > 0) 
+		{
+			TimeCountDown = FMath::Clamp(TimeCountDown - GameData.PenalTime, 0, LevelSetting.TimeGame);
+
+			if (CheckTimerCount())
+			{
+				GameOver();
+			}
+		}
+	}
+}
+
+bool AFGGameModeBase::CheckSickPawn() const
+{
+	if (LevelSetting.CountTypePawn.CountSick == GameData.PlayersNum)
+	{
+		return true;
+	}
+	else return false;
 }
 
 void AFGGameModeBase::HealingPawn(const ETypePawn& PawnType)
@@ -98,22 +185,21 @@ void AFGGameModeBase::HealingPawn(const ETypePawn& PawnType)
 	{
 	case ETypePawn::Doctor:
 	{
-		GameData.CountTypePawn.CountDoctor++;
+		LevelSetting.CountTypePawn.CountDoctor++;
 		break;
 	}
 	case ETypePawn::Assistant:
 	{
-		GameData.CountTypePawn.CountAssistent++;
+		LevelSetting.CountTypePawn.CountAssistent++;
 		break;
 	}
 	case ETypePawn::Worker:
 	{
-		GameData.CountTypePawn.CountWorker++;
+		LevelSetting.CountTypePawn.CountWorker++;
 		break;
 	}
 	}
-	GameData.CountTypePawn.CountSick--;
-	
+	LevelSetting.CountTypePawn.CountSick--;
 }
 
 void AFGGameModeBase::InfactionPawn(const ETypePawn& PawnType)
@@ -122,53 +208,101 @@ void AFGGameModeBase::InfactionPawn(const ETypePawn& PawnType)
 	{
 	case ETypePawn::Doctor:
 	{
-		GameData.CountTypePawn.CountDoctor--;
+		LevelSetting.CountTypePawn.CountDoctor--;
 		break;
 	}
 	case ETypePawn::Assistant:
 	{
-		GameData.CountTypePawn.CountAssistent--;
+		LevelSetting.CountTypePawn.CountAssistent--;
 		break;
 	}
 	case ETypePawn::Worker:
 	{
-		GameData.CountTypePawn.CountWorker--;
+		LevelSetting.CountTypePawn.CountWorker--;
 		break;
 	}
 	}
-	GameData.CountTypePawn.CountSick++;
+	LevelSetting.CountTypePawn.CountSick++;
 }
 
-void AFGGameModeBase::SetStartCountPawn(const AAIController* ControllerPawn)
+//void AFGGameModeBase::SetStartCountPawn(const AAIController* ControllerPawn)
+//{
+//	const auto Pawn = Cast<AFGBaseCharacter>(ControllerPawn->GetPawn());
+//	if (!Pawn) return;
+//
+//	if (Pawn->GetSettingPawn().HealthType)
+//	{
+//		switch (Pawn->GetSettingPawn().TypePawn)
+//		{
+//		case ETypePawn::Doctor:
+//		{
+//			LevelSetting.CountTypePawn.CountDoctor++;
+//			break;
+//		}
+//		case ETypePawn::Assistant:
+//		{
+//			LevelSetting.CountTypePawn.CountAssistent++;
+//			break;
+//		}
+//		case ETypePawn::Worker:
+//		{
+//			LevelSetting.CountTypePawn.CountWorker++;
+//			break;
+//		}
+//		}
+//	}
+//	else
+//	{
+//		LevelSetting.CountTypePawn.CountSick++;
+//	}
+//}
+
+//Game Over
+void AFGGameModeBase::GameOver()
 {
-	const auto Pawn = Cast<AFGBaseCharacter>(ControllerPawn->GetPawn());
-	if (!Pawn) return;
+	GetWorldTimerManager().ClearTimer(GameTimeHandle);
+	GetWorldTimerManager().ClearTimer(ReHealingTimer);
+	UE_LOG(LogFGGameModeBase, Warning, TEXT("====Game Over====="));
 
-	if (Pawn->GetSettingPawn().HealthType)
+	for (auto Pawn : TActorRange<APawn>(GetWorld())) 
 	{
-		switch (Pawn->GetSettingPawn().TypePawn)
+		if (Pawn) 
 		{
-		case ETypePawn::Doctor:
-		{
-			GameData.CountTypePawn.CountDoctor++;
-			break;
-		}
-		case ETypePawn::Assistant:
-		{
-			GameData.CountTypePawn.CountAssistent++;
-			break;
-		}
-		case ETypePawn::Worker:
-		{
-			GameData.CountTypePawn.CountWorker++;
-			break;
-		}
+			Pawn->TurnOff();
+			Pawn->DisableInput(nullptr);
 		}
 	}
-	else
-	{
-		GameData.CountTypePawn.CountSick++;
-	}
+
+	SetMatchState(EFGMatchState::GameOver);
 }
 
-//UE_LOG(LogFGGameModeBase, Display, TEXT("Doctor: %i, Assistant: %i, Worker: %i, Sick: %i"), GameData.CountTypePawn.CountDoctor, GameData.CountTypePawn.CountAssistent, GameData.CountTypePawn.CountWorker, GameData.CountTypePawn.CountSick);
+//Set state to match
+void AFGGameModeBase::SetMatchState(EFGMatchState State)
+{
+	if (MatchState == State) return;
+
+	MatchState = State;
+	OnMatchStateChanged.Broadcast(MatchState);
+}
+
+bool AFGGameModeBase::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate) 
+{
+	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+	if (PauseSet) 
+	{
+		SetMatchState(EFGMatchState::Pause);
+	}
+
+	return PauseSet;
+}
+
+bool AFGGameModeBase::ClearPause() 
+{
+	const auto PausedClear = Super::ClearPause();
+	if (PausedClear) 
+	{
+		SetMatchState(EFGMatchState::InProgress);
+	}
+
+	return PausedClear;
+}

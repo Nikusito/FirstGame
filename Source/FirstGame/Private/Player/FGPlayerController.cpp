@@ -4,6 +4,7 @@
 #include "Components/InputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/FGPlayerCharacter.h"
+#include "FGGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGPlayerController, All, All)
 
@@ -12,17 +13,28 @@ void AFGPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	GetPawn();
+
+	if (GetWorld())
+	{
+		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->OnMatchStateChanged.AddUObject(this, &AFGPlayerController::OnMatchStateChanged);
+		}
+	}
 }
 
 void AFGPlayerController::SetupInputComponent() 
 {
 	Super::SetupInputComponent();
+	if (!InputComponent) return;
 
 	InputComponent->BindAxis("MoveForward", this, &AFGPlayerController::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AFGPlayerController::MoveRight);
 	InputComponent->BindAxis("LookUp", this, &AFGPlayerController::AddControllerPitchInput);
 	InputComponent->BindAxis("TurnAround", this, &AFGPlayerController::AddControllerYawInput);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &AFGPlayerController::Jump);
+	InputComponent->BindAction("PauseGame", IE_Pressed, this, &AFGPlayerController::OnPauseGame);
 }
 
 void AFGPlayerController::GetPawn()
@@ -61,4 +73,25 @@ void AFGPlayerController::AddControllerYawInput(float Amount)
 void AFGPlayerController::Jump() 
 {
 	CurrentPawn->Jump();
+}
+
+void AFGPlayerController::OnPauseGame() 
+{
+	if (!GetWorld() || !GetWorld()->GetAuthGameMode()) return;
+
+	GetWorld()->GetAuthGameMode()->SetPause(this);
+}
+
+void AFGPlayerController::OnMatchStateChanged(EFGMatchState State) 
+{
+	if (State == EFGMatchState::InProgress) 
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}
+	else 
+	{
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
+	}
 }

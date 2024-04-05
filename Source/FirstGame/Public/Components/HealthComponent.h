@@ -27,11 +27,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Color")
 	FSettingPawn SettingPawn;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colors Pawn")
 	FTypeColor TypeColorsPawn;
 
 	virtual void BeginPlay() override;	
 
 	void SetStartSettingsPawn();
+
+private:
+	void SetBotsType();
 };

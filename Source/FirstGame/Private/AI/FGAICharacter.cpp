@@ -7,6 +7,7 @@
 #include "Player/FGBaseCharacter.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "FGGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGAICharacter, All, All)
 
@@ -21,6 +22,15 @@ AFGAICharacter::AFGAICharacter()
 void AFGAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetWorld()) 
+	{
+		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode) 
+		{
+			GameMode->OnReHealingPawn.AddUObject(this, &AFGAICharacter::OnTimerReHealing);
+		}
+	}
 
 }
 
@@ -93,6 +103,15 @@ void AFGAICharacter::Infaction()
 	SetColor(HealthComponent->GetColorParam().Sick);
 	OnHealthChanged.Broadcast(HealthComponent->GetSettingsPawn().HealthType, HealthComponent->GetSettingsPawn().TypePawn);
 	SpawnNiagara(*this, false);
+}
+
+void AFGAICharacter::OnTimerReHealing(const ETypePawn& ReHealingPawn)
+{
+	if (ReHealingPawn == HealthComponent->GetSettingsPawn().TypePawn)
+	{
+		UE_LOG(LogFGAICharacter, Display, TEXT("Healing"));
+		Healing(this);
+	}
 }
 
 UNiagaraComponent* AFGAICharacter::SpawnNiagara(const AFGBaseCharacter& SlimeMesh, const bool IsHelling)

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "FGCoreTypes.h"
 #include "FGPlayerController.generated.h"
 
 class AFGPlayerCharacter;
@@ -32,4 +33,6 @@ private:
 	void AddControllerPitchInput(float Amount);
 	void AddControllerYawInput(float Amount);
 	void Jump();
+	void OnPauseGame();
+	void OnMatchStateChanged(EFGMatchState State);
 };
