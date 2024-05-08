@@ -3,23 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/FGBaseWidget.h"
 #include "FGPauseWidget.generated.h"
 
-class UButton;
+class UFGBaseButtonWidget;
 
 UCLASS()
-class FIRSTGAME_API UFGPauseWidget : public UUserWidget
+class FIRSTGAME_API UFGPauseWidget : public UFGBaseWidget
 {
 	GENERATED_BODY()
 
 protected:
 	UPROPERTY(meta = (BindWidget))
-	UButton* ClearPauseButton;
+	UFGBaseButtonWidget* ClearPauseButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UFGBaseButtonWidget* GoToMenuButton;
 
 	virtual void NativeOnInitialized() override;
 	
 private:
 	UFUNCTION()
 	void OnClearPause();
+
+	UFUNCTION()
+	void OnGoToMenu();
 };

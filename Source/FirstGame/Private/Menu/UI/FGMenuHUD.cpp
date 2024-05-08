@@ -1,18 +1,52 @@
 // First Game
 
 #include "Menu/UI/FGMenuHUD.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/FGBaseWidget.h"
+#include "Menu/FGMenuGameModeBase.h"
 
 void AFGMenuHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (MenuWidgetClass) 
+	MenuWidgets.Add(EFGUIState::StartMenu, CreateWidget<UFGBaseWidget>(GetWorld(), MenuWidgetClass));
+	MenuWidgets.Add(EFGUIState::LevelsSelector, CreateWidget<UFGBaseWidget>(GetWorld(), LevelsSelectorClass));
+	MenuWidgets.Add(EFGUIState::HelpAndSetting, CreateWidget<UFGBaseWidget>(GetWorld(), RulesClass));
+
+	for (auto MenuWidgetPair : MenuWidgets)
 	{
-		const auto MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
-		if (MenuWidget) 
+		const auto GameWidget = MenuWidgetPair.Value;
+		if (GameWidget)
 		{
-			MenuWidget->AddToViewport();
+			GameWidget->AddToViewport();
+			GameWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
+	}
+
+	if (GetWorld())
+	{
+		const auto GameMode = Cast<AFGMenuGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->OnUIStateChanged.AddUObject(this, &AFGMenuHUD::OnUIStateChanged);
+		}
+	}
+}
+
+void AFGMenuHUD::OnUIStateChanged(EFGUIState State)
+{
+	if (CurrentWidget)
+	{
+		CurrentWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (MenuWidgets.Contains(State))
+	{
+		CurrentWidget = MenuWidgets[State];
+	}
+
+	if (CurrentWidget)
+	{
+		CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+		CurrentWidget->Show();
 	}
 }

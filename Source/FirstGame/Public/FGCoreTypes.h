@@ -131,3 +131,32 @@ enum class EFGMatchState : uint8
 	Pause,
 	GameOver
 };
+
+//UI
+USTRUCT(BlueprintType)
+struct FLevelUIData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+	FName LevelName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	FName LevelDisplayName = NAME_None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UTexture2D* LevelThumb;
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelSelectedSignature, const FLevelUIData&);
+
+UENUM(BlueprintType)
+enum class EFGUIState : uint8
+{
+	StartMenu = 0,
+	LevelsSelector,
+	HelpAndSetting,
+	Back
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnUIStateChangedSignature, EFGUIState);

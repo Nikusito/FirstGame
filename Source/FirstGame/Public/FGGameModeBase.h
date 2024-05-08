@@ -60,7 +60,6 @@ private:
 	UFUNCTION()
 	void HealingOrInfaction(const bool& Health, const ETypePawn& TypePawn);
 
-	//void SetStartCountPawn(const AAIController* ControllerPawn);
 	void HealingPawn(const ETypePawn& PawnType);
 	void InfactionPawn(const ETypePawn& PawnType);
 	void IsAIPawn(AAIController* InConroller);

@@ -7,6 +7,8 @@
 #include "FGCoreTypes.h"
 #include "FGGameHUD.generated.h"
 
+class UFGBaseWidget;
+
 UCLASS()
 class FIRSTGAME_API AFGGameHUD : public AHUD
 {
@@ -26,10 +28,10 @@ protected:
 
 private:
 	UPROPERTY()
-	TMap<EFGMatchState, UUserWidget*>GameWidgets;
+	TMap<EFGMatchState, UFGBaseWidget*>GameWidgets;
 
 	UPROPERTY()
-	UUserWidget* CurrentWidget = nullptr;
+	UFGBaseWidget* CurrentWidget = nullptr;
 
 	void OnMatchStateChanged(EFGMatchState State);
 };

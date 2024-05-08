@@ -26,9 +26,9 @@ void AFGGameModeBase::SetLevelSetting()
 	const auto GameInstance = GetWorld()->GetGameInstance<UFGGameInstance>();
 	if (!GameInstance) return;
 
-	if (GameData.LevelsSetting.Contains(GameInstance->DifficultyLevel))
+	if (GameData.LevelsSetting.Contains(GameInstance->GetDifficultyLevel()))
 	{
-		LevelSetting = GameData.LevelsSetting[GameInstance->DifficultyLevel];
+		LevelSetting = GameData.LevelsSetting[GameInstance->GetDifficultyLevel()];
 		CountType = LevelSetting.CountTypePawn;
 		TimeCountDown = LevelSetting.TimeGame;
 		TimeReHealing = LevelSetting.TimeReHealing;
@@ -224,38 +224,6 @@ void AFGGameModeBase::InfactionPawn(const ETypePawn& PawnType)
 	}
 	LevelSetting.CountTypePawn.CountSick++;
 }
-
-//void AFGGameModeBase::SetStartCountPawn(const AAIController* ControllerPawn)
-//{
-//	const auto Pawn = Cast<AFGBaseCharacter>(ControllerPawn->GetPawn());
-//	if (!Pawn) return;
-//
-//	if (Pawn->GetSettingPawn().HealthType)
-//	{
-//		switch (Pawn->GetSettingPawn().TypePawn)
-//		{
-//		case ETypePawn::Doctor:
-//		{
-//			LevelSetting.CountTypePawn.CountDoctor++;
-//			break;
-//		}
-//		case ETypePawn::Assistant:
-//		{
-//			LevelSetting.CountTypePawn.CountAssistent++;
-//			break;
-//		}
-//		case ETypePawn::Worker:
-//		{
-//			LevelSetting.CountTypePawn.CountWorker++;
-//			break;
-//		}
-//		}
-//	}
-//	else
-//	{
-//		LevelSetting.CountTypePawn.CountSick++;
-//	}
-//}
 
 //Game Over
 void AFGGameModeBase::GameOver()

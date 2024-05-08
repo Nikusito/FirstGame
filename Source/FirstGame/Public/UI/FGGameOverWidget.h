@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/FGBaseWidget.h"
 #include "FGCoreTypes.h"
 #include "FGGameOverWidget.generated.h"
 
 class UTextBlock;
-class UButton;
+class UFGBaseButtonWidget;
 
 UCLASS()
-class FIRSTGAME_API UFGGameOverWidget : public UUserWidget
+class FIRSTGAME_API UFGGameOverWidget : public UFGBaseWidget
 {
 	GENERATED_BODY()
 
@@ -23,13 +23,19 @@ protected:
 	UTextBlock* WinnOrLose;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* ResetLevelButton;
+	UFGBaseButtonWidget* ResetLevelButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UFGBaseButtonWidget* GoToMenuButton;
 
 	virtual void NativeOnInitialized() override;
 	
 private:
 	UFUNCTION()
 	void OnResetLevel();
+
+	UFUNCTION()
+	void OnGoToMenu();
 
 	void OnMatchStateChanged(EFGMatchState State);
 };

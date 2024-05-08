@@ -1,7 +1,7 @@
 // First Game
 
 #include "UI/FGGameHUD.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/FGBaseWidget.h"
 #include "FGGameModeBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGGameHUD, All, All)
@@ -10,9 +10,9 @@ void AFGGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameWidgets.Add(EFGMatchState::InProgress, CreateWidget<UUserWidget>(GetWorld(), PlayerWidgetClass));
-	GameWidgets.Add(EFGMatchState::Pause, CreateWidget<UUserWidget>(GetWorld(), PauseWidgetClass));
-	GameWidgets.Add(EFGMatchState::GameOver, CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass));
+	GameWidgets.Add(EFGMatchState::InProgress, CreateWidget<UFGBaseWidget>(GetWorld(), PlayerWidgetClass));
+	GameWidgets.Add(EFGMatchState::Pause, CreateWidget<UFGBaseWidget>(GetWorld(), PauseWidgetClass));
+	GameWidgets.Add(EFGMatchState::GameOver, CreateWidget<UFGBaseWidget>(GetWorld(), GameOverWidgetClass));
 
 	for (auto GameWidgetPair : GameWidgets) 
 	{
@@ -49,6 +49,7 @@ void AFGGameHUD::OnMatchStateChanged(EFGMatchState State)
 	if (CurrentWidget)
 	{
 		CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+		CurrentWidget->Show();
 	}
 	UE_LOG(LogFGGameHUD, Display, TEXT("Match state: %s"), *UEnum::GetValueAsString(State));
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "FGCoreTypes.h"
 #include "FGMenuGameModeBase.generated.h"
 
 UCLASS()
@@ -13,4 +14,10 @@ class FIRSTGAME_API AFGMenuGameModeBase : public AGameModeBase
 	
 public:
 	AFGMenuGameModeBase();
+
+	FOnUIStateChangedSignature OnUIStateChanged;
+
+	void SetUIState(EFGUIState State);
+
+	virtual void StartPlay() override;
 };
