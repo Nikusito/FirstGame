@@ -112,7 +112,7 @@ bool AFGGameModeBase::CheckTimerCount() const
 
 void AFGGameModeBase::CheckTimeReHeling()
 {
-	if (TimeCountDown <= 20 && !LevelSetting.ReHealing)
+	if (TimeCountDown <= TimeForHealing && !LevelSetting.ReHealing)
 	{
 		GetWorldTimerManager().SetTimer(ReHealingTimer, this, &AFGGameModeBase::ReHealingUpdate, 1.0f, false);
 		LevelSetting.ReHealing = true;

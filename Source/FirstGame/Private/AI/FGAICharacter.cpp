@@ -107,7 +107,7 @@ void AFGAICharacter::Infaction()
 
 void AFGAICharacter::OnTimerReHealing(const ETypePawn& ReHealingPawn)
 {
-	if (ReHealingPawn == HealthComponent->GetSettingsPawn().TypePawn)
+	if (ReHealingPawn == HealthComponent->GetSettingsPawn().TypePawn && !HealthComponent->GetSettingsPawn().HealthType)
 	{
 		UE_LOG(LogFGAICharacter, Display, TEXT("Healing"));
 		Healing(this);

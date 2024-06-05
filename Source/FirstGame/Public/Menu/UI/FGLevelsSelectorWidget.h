@@ -11,6 +11,7 @@ class UFGBaseButtonWidget;
 class UHorizontalBox;
 class UFGGameInstance;
 class UFGLevelItemWidget;
+class UImage;
 
 UCLASS()
 class FIRSTGAME_API UFGLevelsSelectorWidget : public UFGBaseWidget
@@ -23,6 +24,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> LevelsItemWidgetClass;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* LevelBackgroundImage;
 
 	UPROPERTY(meta = (BindWidget))
 	UFGBaseButtonWidget* SimpleButton;

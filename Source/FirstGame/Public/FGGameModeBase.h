@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
 	FGameData GameData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 TimeForHealing = 20;
+
 private:
 	FLevelSetting LevelSetting;
 	EFGMatchState MatchState = EFGMatchState::WaitingToStatrt;

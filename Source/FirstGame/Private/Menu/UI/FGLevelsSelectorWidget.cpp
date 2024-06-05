@@ -3,6 +3,7 @@
 #include "Menu/UI/FGLevelsSelectorWidget.h"
 #include "FGGameInstance.h"
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "UI/FGBaseButtonWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Menu/UI/FGLevelItemWidget.h"
@@ -78,6 +79,7 @@ void UFGLevelsSelectorWidget::OnLevelSelected(const FLevelUIData& Data)
 		{
 			const auto IsSelected = Data.LevelName == LevelItemWidget->GetLevelData().LevelName;
 			LevelItemWidget->SetSelected(IsSelected);
+			LevelBackgroundImage->SetBrushFromTexture(Data.LevelBackground);
 		}
 	}
 }

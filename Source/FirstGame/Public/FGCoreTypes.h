@@ -146,6 +146,9 @@ struct FLevelUIData
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
 	UTexture2D* LevelThumb;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+	UTexture2D* LevelBackground;
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLevelSelectedSignature, const FLevelUIData&);
