@@ -12,6 +12,7 @@ class UHorizontalBox;
 class UFGGameInstance;
 class UFGLevelItemWidget;
 class UImage;
+class USoundCue;
 
 UCLASS()
 class FIRSTGAME_API UFGLevelsSelectorWidget : public UFGBaseWidget
@@ -39,6 +40,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* LoadAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* StartGameSound;
 
 	virtual void NativeOnInitialized() override;
 	virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;

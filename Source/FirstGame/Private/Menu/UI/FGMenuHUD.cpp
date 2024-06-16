@@ -24,8 +24,7 @@ void AFGMenuHUD::BeginPlay()
 
 	if (GetWorld())
 	{
-		const auto GameMode = Cast<AFGMenuGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode)
+		if (const auto GameMode = Cast<AFGMenuGameModeBase>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->OnUIStateChanged.AddUObject(this, &AFGMenuHUD::OnUIStateChanged);
 		}

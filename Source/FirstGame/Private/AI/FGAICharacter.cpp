@@ -8,6 +8,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "FGGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFGAICharacter, All, All)
 
@@ -25,27 +27,24 @@ void AFGAICharacter::BeginPlay()
 
 	if (GetWorld()) 
 	{
-		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode) 
+		if (const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->OnReHealingPawn.AddUObject(this, &AFGAICharacter::OnTimerReHealing);
 		}
 	}
-
 }
 
 void AFGAICharacter::Hit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!GetWorld()) return;
 
-	const auto OverlapActor = Cast<AFGBaseCharacter>(OtherActor);
-
-	if (OverlapActor)
+	if (const auto OverlapActor = Cast<AFGBaseCharacter>(OtherActor))
 	{
 		if (GetSettingPawn().HealthType == OverlapActor->GetSettingPawn().HealthType) return;
 
 		UE_LOG(LogFGAICharacter, Display, TEXT("Overlap: %s"), *OverlapActor->GetName());
 		CheckPawn(OverlapActor);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), OverlapSound, GetActorLocation());
 	}
 }
 

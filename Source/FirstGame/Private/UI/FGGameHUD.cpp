@@ -26,8 +26,7 @@ void AFGGameHUD::BeginPlay()
 
 	if (GetWorld())
 	{
-		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode) 
+		if (const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->OnMatchStateChanged.AddUObject(this, &AFGGameHUD::OnMatchStateChanged);
 		}

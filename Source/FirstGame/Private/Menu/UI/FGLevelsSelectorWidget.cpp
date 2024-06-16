@@ -8,6 +8,7 @@
 #include "Components/HorizontalBox.h"
 #include "Menu/UI/FGLevelItemWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 void UFGLevelsSelectorWidget::NativeOnInitialized()
 {
@@ -87,6 +88,7 @@ void UFGLevelsSelectorWidget::OnLevelSelected(const FLevelUIData& Data)
 void UFGLevelsSelectorWidget::OnStartGame()
 {
 	PlayAnimation(LoadAnimation);
+	UGameplayStatics::PlaySound2D(GetWorld(), StartGameSound);
 }
 
 void UFGLevelsSelectorWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)

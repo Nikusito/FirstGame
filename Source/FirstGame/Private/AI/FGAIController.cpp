@@ -17,8 +17,7 @@ void AFGAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	const auto FGAICharacter = Cast<AFGAICharacter>(InPawn);
-	if (FGAICharacter)
+	if (const auto FGAICharacter = Cast<AFGAICharacter>(InPawn))
 	{
 		RunBehaviorTree(FGAICharacter->BehaviorTreeAsset);
 	}

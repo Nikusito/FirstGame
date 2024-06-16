@@ -10,6 +10,7 @@
 class UBehaviorTree;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class USoundCue;
 
 UCLASS()
 class FIRSTGAME_API AFGAICharacter : public AFGBaseCharacter
@@ -33,6 +34,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "VFX")
 	TMap<bool, UNiagaraSystem*> NiagaraEffects;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sound")
+	USoundCue* OverlapSound;
 
 	virtual void BeginPlay() override;
 

@@ -16,8 +16,7 @@ void UFGGameOverWidget::NativeOnInitialized()
 
 	if (GetWorld())
 	{
-		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode)
+		if (const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode()))
 		{
 			GameMode->OnMatchStateChanged.AddUObject(this, &UFGGameOverWidget::OnMatchStateChanged);
 		}
@@ -54,8 +53,7 @@ void UFGGameOverWidget::OnMatchStateChanged(EFGMatchState State)
 
 	if (State == EFGMatchState::GameOver) 
 	{
-		const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode());
-		if (GameMode)
+		if (const auto GameMode = Cast<AFGGameModeBase>(GetWorld()->GetAuthGameMode()))
 		{
 			SetWinnOrLose(GameMode->CheckSickPawn());
 		}

@@ -41,6 +41,5 @@ FSettingPawn AFGBaseCharacter::GetSettingPawn() const
 void AFGBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

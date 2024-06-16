@@ -37,32 +37,6 @@ void UHealthComponent::SetStartSettingsPawn()
 	}
 }
 
-FLinearColor UHealthComponent::CheckColorPawn(const ETypePawn& PawnType)
-{
-	switch (PawnType)
-	{
-	case ETypePawn::Doctor: 
-	{
-		SettingPawn.TypeColorPawn = TypeColorsPawn.Doctor;
-		break;
-	}
-	case ETypePawn::Assistant:
-	{
-		SettingPawn.TypeColorPawn = TypeColorsPawn.Assistant;
-		break;
-	}
-	case ETypePawn::Worker:
-	{
-		SettingPawn.TypeColorPawn = TypeColorsPawn.Worker;
-		break;
-	}
-	default: SettingPawn.TypeColorPawn = TypeColorsPawn.Sick;
-		break;
-	}
-
-	return SettingPawn.TypeColorPawn;
-}
-
 void UHealthComponent::SetBotsType() 
 {
 	if (!GetWorld()) return;
@@ -94,4 +68,30 @@ void UHealthComponent::SetBotsType()
 			GameMode->CountType.CountWorker--;
 		}
 	}
+}
+
+FLinearColor UHealthComponent::CheckColorPawn(const ETypePawn& PawnType)
+{
+	switch (PawnType)
+	{
+	case ETypePawn::Doctor: 
+	{
+		SettingPawn.TypeColorPawn = TypeColorsPawn.Doctor;
+		break;
+	}
+	case ETypePawn::Assistant:
+	{
+		SettingPawn.TypeColorPawn = TypeColorsPawn.Assistant;
+		break;
+	}
+	case ETypePawn::Worker:
+	{
+		SettingPawn.TypeColorPawn = TypeColorsPawn.Worker;
+		break;
+	}
+	default: SettingPawn.TypeColorPawn = TypeColorsPawn.Sick;
+		break;
+	}
+
+	return SettingPawn.TypeColorPawn;
 }
